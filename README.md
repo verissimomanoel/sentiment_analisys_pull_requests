@@ -4,6 +4,14 @@
 
 <b>O objetivo</b>: Construir um modelo para classificação de comentários de pull-requests, indicando se podem ser consideradas <b>positivas</b>, <b>negativas</b> ou <b>neutras</b>.
 
+### Organização do projeto
+Existem duas pastas com os sub-projetos deste desafio:
+
+* trainer: Possui o código para o treinamento do modelo
+* API: Possui o código para expor o modelo como API
+
+Em cada um desses sub-projetos existe um arquivo README.md com instruções específicas.
+
 ### Premissas do projeto
 Para este desafio fora estabelecidas algumas premissas:
 
