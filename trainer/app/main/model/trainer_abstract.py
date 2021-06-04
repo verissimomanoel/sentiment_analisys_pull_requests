@@ -94,11 +94,8 @@ class TrainerAbstract(metaclass=abc.ABCMeta):
         :return:
         """
         df_train = pd.read_csv(self.config.train_path_file)
-        df_train = df_train[:100]
         df_val = pd.read_csv(self.config.val_path_file)
-        df_val = df_val[:20]
         df_test = pd.read_csv(self.config.test_path_file)
-        df_test = df_test[:20]
 
         df_train = preprocess(df_train)
         df_val = preprocess(df_val)
