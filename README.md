@@ -4,6 +4,8 @@
 
 <b>O objetivo</b>: Construir um modelo para classificação de comentários de pull-requests, indicando se podem ser consideradas <b>positivas</b>, <b>negativas</b> ou <b>neutras</b>.
 
+------------------------------------------------------------------
+
 ### Organização do projeto
 Existem duas pastas com os sub-projetos deste desafio:
 
@@ -12,6 +14,8 @@ Existem duas pastas com os sub-projetos deste desafio:
 
 Em cada um desses sub-projetos existe um arquivo README.md com instruções específicas.
 
+------------------------------------------------------------------
+
 ### Premissas do projeto
 Para este desafio fora estabelecidas algumas premissas:
 
@@ -19,4 +23,45 @@ Para este desafio fora estabelecidas algumas premissas:
 * A decisão de utilizar um modelo pré-treinado é porque os modelos de linguagem atualmente são considerados estado da arte para esse tipo de tarefa (http://nlpprogress.com/english/sentiment_analysis.html). Contudo, isso tem um maior custo computacional, pois são modelos maiores e precisam de maior poder computacional para o treinamento e também para inferência. Outras opções poderiam ter sido avaliadas, contudo essa opção para o teste pareceu viável pois é um modelo que uso na minha pesquisa de mestrado.
 * O problema proposto são para dados de pull requests, contudo o modelo base utilizado foram de dados do Twitter, ou seja, será realizada uma tranferência de aprendizado de domínios diferentes (cross-domain). Em um cenário real, poderia ser avalidado de se fazer anotações no próprio domínio do problema, contudo para um teste é esperado que essa abordagem funcione bem.
 * Foi utilizado um dataset público (https://www.kaggle.com/crowdflower/twitter-airline-sentiment) com três classes, para o treinamento do modelo supervisionado, pois o modelo indicado só possuia duas classes. Uma vez que o modelo foi treinado para ter duas saídas não é possível utilizá-lo para três, conforme solicitado no problema, por isso foi utilizado esse outro dataset.
-* O dataset de comentários não foi utilizado, pois no meu entendimento pela descrição do problema uma possibilidade é que esse dataset fosse utilizado para o treinamento de vetores de representações (Embeddings), contudo se o intuíto de fato for esse, um treinamento de abordagens como Word2Vec poderia não ser tão efetiva por ser vetores estáticos, ou seja, a representações são sempre fixas independente do contexto. Por isso, a decisão de usar um modelo de linguage é que as representações vetoriais são contextuais. É importante deixar claro que em um cenário real, as duas opções e outras poderiam ser avaliadas para decidir qual abordagem seria mais adequada para resolver o problema, contudo para conclusão do teste foi escolhida essa abordagem por inicialmente parecer mais adequada.
+* O dataset de comentários não foi utilizado, pois no meu entendimento pela descrição do problema uma possibilidade é que esse dataset fosse utilizado para o treinamento de vetores de representações (Embeddings), contudo se o intuíto de fato for esse, um treinamento de abordagens como Word2Vec poderia não ser tão efetiva por ser vetores estáticos, ou seja, a representações são sempre fixas independente do contexto. Por isso, a decisão foi usar um modelo de linguagem, pois as representações vetoriais são contextuais. É importante deixar claro que em um cenário real, as duas opções e outras poderiam ser avaliadas para decidir qual abordagem seria mais adequada para resolver o problema, contudo para conclusão do teste foi escolhida essa abordagem por inicialmente parecer mais adequada.
+------------------------------------------------------------------
+
+### Análise dos dados
+Pode ser observado que existe um desbalanceamento dos dados na classe negative, isso pode gerar um viés para o modelo. Poderia ser aplicada alguma técnica de downsampling ou oversampling para balancear o dataset, contudo nesse caso em específico não será aplicada nenhuma técnica pois o objetivo aqui é mostrar o processo do treinamento e "produtização" de um modelo de machine learning.
+
+![](imgs/complete.png)
+
+## Preparação dos dados
+Para o treinamento do modelo serão realizadas algumas etapas descritas abaixo:
+
+* Codificar os labels que estão como texto para números usando a regra: 0 - negative, 1 - positive e 2 - neutral;
+* Remover as colunas que não serão usadas no treinamento do modelo;
+* Separar o conjunto de dados em treino, validação e teste.
+------------------------------------------------------------------
+
+## Split dos dados
+
+O dataset foi separado em train (treino), val (validação) e test (teste) respeitando
+a mesma distribuição de classes do dataset completo.
+
+![](imgs/train.png)
+------------------------------------------------------------------
+
+![](imgs/val.png)
+------------------------------------------------------------------
+
+![](imgs/test.png)
+------------------------------------------------------------------
+
+## Análise dos resultados
+Os resultados aqui apresentados são dos dados separados para testes após o finetunnig do modelo (transfer learning).
+
+
+![](imgs/report.png)
+------------------------------------------------------------------
+
+![](imgs/confusion_matrix.png)
+------------------------------------------------------------------
+
+* A acurácia do modelo foi de 82.42%, o que já é um bom resultado para uma transferência de aprendizado.
+* A classe que tem menor assertividade é a Neutral e para melhorar isso talvez balancear o dataset seja uma saída.
