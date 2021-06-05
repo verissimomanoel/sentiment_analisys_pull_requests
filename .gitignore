@@ -131,4 +131,6 @@ dmypy.json
 trainer/.idea
 trainer/model
 trainer/baseline/pytorch_model.bin
+volume
+trainer/results.csv
 API/.idea
