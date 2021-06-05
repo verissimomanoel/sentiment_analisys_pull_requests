@@ -58,7 +58,7 @@ class TrainerAbstract(metaclass=abc.ABCMeta):
             raise TrainerException("Device configuration is required")
 
         if config.baseline_path is None or config.checkpoint_path is None:
-            raise TrainerException("Baseline path or Checkpoint path configuration is required")
+            raise TrainerException("Baseline path and Checkpoint path configuration is required")
 
         if config.train_path_file is None:
             raise TrainerException("Train path file configuration is required")
