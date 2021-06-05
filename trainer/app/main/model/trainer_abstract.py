@@ -134,9 +134,11 @@ class TrainerAbstract(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def eval_model(self) -> tuple:
+    def eval_model(self, data_loader: DataLoader, n_examples: int) -> tuple:
         """
         Must implement the rules to evaluate the model.
+        :param data_loader:
+        :param n_examples:
         :return:
         """
         raise NotImplementedError
@@ -160,7 +162,7 @@ class TrainerAbstract(metaclass=abc.ABCMeta):
         num_without_increase = 0
         optim = AdamW(self.model.parameters(), lr=self.config.learning_rate)
 
-        for epoch in tqdm(range(1)):
+        for epoch in tqdm(range(self.config.epochs)):
             for batch in tqdm(self.train_data_loader, total=len(self.train_data_loader)):
                 optim.zero_grad()
                 input_ids = batch['input_ids'].to(self.config.device)
@@ -171,19 +173,19 @@ class TrainerAbstract(metaclass=abc.ABCMeta):
                 loss.backward()
                 optim.step()
 
-                val_acc = self.eval_model()
+            val_acc = self.eval_model(self.val_data_loader, len(self.df_val))
 
-                logging.info("Accuracy Val: " + str(val_acc.item()) + "\n")
+            logging.info("Accuracy Val: " + str(val_acc.item()) + "\n")
 
-                if val_acc > best_accuracy:
-                    self.model.save_pretrained(self.config.checkpoint_path)
-                    best_accuracy = val_acc
-                else:
-                    num_without_increase += 1
+            if val_acc > best_accuracy:
+                self.model.save_pretrained(self.config.checkpoint_path)
+                best_accuracy = val_acc
+            else:
+                num_without_increase += 1
 
-                if 0 < early_stopping < num_without_increase:
-                    logging.info("Early Stopping in " + str(epoch + 1))
-                    break
+            if 0 < early_stopping < num_without_increase:
+                logging.info("Early Stopping in " + str(epoch + 1))
+                break
 
         self.eval()
 
@@ -192,7 +194,7 @@ class TrainerAbstract(metaclass=abc.ABCMeta):
         Eval the model in a test data loader and export the results in result.csv file.
         :return:
         """
-        test_acc = self.eval_model()
+        test_acc = self.eval_model(self.test_data_loader, len(self.df_test))
 
         logging.info("Acc: " + str(test_acc.item()))
 

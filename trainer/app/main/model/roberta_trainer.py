@@ -4,7 +4,7 @@
 
 import torch
 from pandas import DataFrame
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, DataLoader
 from tqdm import tqdm
 from transformers import AutoTokenizer
 
@@ -31,9 +31,7 @@ class RobertaTrainer(TrainerAbstract):
 
         return ds
 
-    def eval_model(self) -> tuple:
-        data_loader = self.test_data_loader
-        n_examples = len(self.df_test)
+    def eval_model(self, data_loader: DataLoader, n_examples: int) -> tuple:
         model = self.model.eval()
 
         correct_predictions = 0

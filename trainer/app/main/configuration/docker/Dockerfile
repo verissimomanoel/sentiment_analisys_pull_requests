@@ -41,4 +41,4 @@ RUN pip install --upgrade pip
 
 RUN echo "--------------------- Finish ---------------------"
 
-ENTRYPOINT [ "./entrypoint.sh" ]
+#ENTRYPOINT [ "./entrypoint.sh" ]
