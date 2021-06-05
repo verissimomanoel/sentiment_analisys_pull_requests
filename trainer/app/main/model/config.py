@@ -22,5 +22,4 @@ class Config:
     baseline_path: str = "baseline"
     checkpoint_path: str
     learning_rate: float = 2e-5
-    dropout: float = 0.3
 

@@ -1,14 +1,12 @@
 # ----------------------------------------------------------------------------------------------------------------------
 #   This software is free software.
 # ----------------------------------------------------------------------------------------------------------------------
-import os
 
 import click
 import torch
 
 from app.main.model.config import Config
 from app.main.model.roberta_trainer import RobertaTrainer
-from app.main.model.sentiment_classifier import SentimentAbstractClassifier
 
 
 @click.command()
@@ -47,16 +45,9 @@ def main(number_of_classes: int, early_stopping: int, epochs: int, train_path_fi
     config.baseline_path = baseline_path
     config.checkpoint_path = checkpoint_path
     config.learning_rate = learning_rate
-    config.dropout = dropout
 
-    model = SentimentAbstractClassifier(config)
-    roberta_trainer = RobertaTrainer(config, model)
+    roberta_trainer = RobertaTrainer(config)
     roberta_trainer.train()
 
-
 if __name__ == '__main__':
-    dir = 'model/'
-    for f in os.listdir(dir):
-        os.remove(os.path.join(dir, f))
-
     main()

@@ -4,19 +4,16 @@
 import abc
 import logging
 import os
-from collections import defaultdict
-from typing import Type
 
 import pandas as pd
 from pandas import DataFrame
 from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm
-from transformers import AutoTokenizer
+from transformers import AutoTokenizer, AdamW, AutoModelForSequenceClassification
 
 from app.main.exception.trainer_exception import TrainerException
-from app.main.model.abstract_classifier import AbstractClassifier
 from app.main.model.config import Config
-from app.main.utils.utils import preprocess
+from app.main.utils.utils import preprocess, has_checkpoint
 
 
 class TrainerAbstract(metaclass=abc.ABCMeta):
@@ -24,30 +21,38 @@ class TrainerAbstract(metaclass=abc.ABCMeta):
     Default class for training
     """
 
-    def __init__(self, config: Config, model: Type[AbstractClassifier]) -> None:
+    def __init__(self, config: Config) -> None:
         self.config = config
-        self.__validate_required_configs(config, model)
-        self.model = model
-        self.df_train, self.df_test, self.df_val = self.get_data()
 
+        self.__validate_required_configs(config)
+        self.__init_model(config)
         self.tokenizer = self.__init_tokenizer()
 
+        self.df_train, self.df_test, self.df_val = self.get_data()
         self.train_data_loader = self.create_data_loader(self.df_train, self.tokenizer)
         self.val_data_loader = self.create_data_loader(self.df_val, self.tokenizer)
         self.test_data_loader = self.create_data_loader(self.df_test, self.tokenizer)
 
-    def __validate_required_configs(self, config: Config, model: Type[AbstractClassifier]) -> None:
+    def __init_model(self, config):
+        """
+        Init the model with baseline or checkpoint.
+        :param config:
+        :return:
+        """
+        if has_checkpoint(config.checkpoint_path):
+            self.checkpoint = config.checkpoint_path
+        else:
+            self.checkpoint = config.baseline_path
+        self.model = AutoModelForSequenceClassification.from_pretrained(self.checkpoint).to(self.config.device)
+
+    def __validate_required_configs(self, config: Config) -> None:
         """
         Validate all required fields to run the experiment
         :param config: Configuration of experiment
-        :param model: Model to run the training
         :return:
         """
         if config is None:
             raise TrainerException("Configurations is required")
-
-        if model is None:
-            raise TrainerException("Model is required")
 
         if config.device is None:
             raise TrainerException("Device configuration is required")
@@ -119,30 +124,6 @@ class TrainerAbstract(metaclass=abc.ABCMeta):
         )
 
     @abc.abstractmethod
-    def train_epoch(self, model, data_loader, loss_fn, optimizer, device, scheduler, n_examples) -> tuple:
-        """
-        Implements the training per each epoch.
-        :param model: The model for training
-        :param data_loader: The data loader
-        :param loss_fn: The function of loss
-        :param optimizer: The optimizer of model
-        :param device: The device for training (CPU or GPU)
-        :param scheduler: The scheduler for change the leaning rate
-        :param n_examples: The number of examples for training
-        :return:
-        """
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def configure_train(self) -> tuple:
-        """
-        Must configure parameters like: Loss Function, Scheduler for learning rate adjusts
-        and optimizer for training.
-        :return: Tuple with: loss_fn, scheduler, optimizer
-        """
-        raise NotImplementedError
-
-    @abc.abstractmethod
     def get_dataset(self, df: DataFrame, tokenizer: AutoTokenizer) -> Dataset:
         """
         Must return the specific class for dataset to training
@@ -153,57 +134,73 @@ class TrainerAbstract(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def eval_model(self, data_loader, loss_fn, n_examples) -> tuple:
+    def eval_model(self) -> tuple:
         """
         Must implement the rules to evaluate the model.
-        :param data_loader:
-        :param loss_fn:
-        :param n_examples:
         :return:
         """
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def get_predictions(self, data_loader) -> tuple:
+        """
+        Must implement get predictions of all data in a data loader.
+        :param data_loader: The data loader to get the predictions
+        :return:
+        """
+        raise NotImplementedError
 
     def train(self) -> None:
         """
         Execute the train loop.
         :return:
         """
-        loss_fn, scheduler, optimizer = self.configure_train()
-
-        history = defaultdict(list)
         best_accuracy = 0
         early_stopping = self.config.early_stopping
         num_without_increase = 0
+        optim = AdamW(self.model.parameters(), lr=self.config.learning_rate)
 
-        for epoch in tqdm(range(self.config.epochs)):
-            logging.info("Epoch " + str(epoch + 1) + " - " + str(self.config.epochs))
+        for epoch in tqdm(range(1)):
+            for batch in tqdm(self.train_data_loader, total=len(self.train_data_loader)):
+                optim.zero_grad()
+                input_ids = batch['input_ids'].to(self.config.device)
+                attention_mask = batch['attention_mask'].to(self.config.device)
+                targets = batch['targets'].to(self.config.device)
+                outputs = self.model(input_ids, attention_mask=attention_mask, labels=targets)
+                loss = outputs[0]
+                loss.backward()
+                optim.step()
 
-            train_acc, train_loss = self.train_epoch(
-                self.model,
-                self.train_data_loader,
-                loss_fn,
-                optimizer,
-                self.config.device,
-                scheduler,
-                len(self.df_train)
-            )
+                val_acc = self.eval_model()
 
-            logging.info("Train loss " + str(train_loss) + " accuracy " + str(train_acc))
+                logging.info("Accuracy Val: " + str(val_acc.item()) + "\n")
 
-            val_acc, val_loss = self.eval_model(self.val_data_loader, loss_fn, len(self.df_val))
+                if val_acc > best_accuracy:
+                    self.model.save_pretrained(self.config.checkpoint_path)
+                    best_accuracy = val_acc
+                else:
+                    num_without_increase += 1
 
-            logging.info("Val loss " + str(val_loss) + " accuracy " + str(val_acc) + "\n")
+                if 0 < early_stopping < num_without_increase:
+                    logging.info("Early Stopping in " + str(epoch + 1))
+                    break
 
-            history['train_acc'].append(train_acc)
-            history['train_loss'].append(train_loss)
-            history['val_acc'].append(val_acc)
-            history['val_loss'].append(val_loss)
+        self.eval()
 
-            if val_acc > best_accuracy:
-                self.model.bert.save_pretrained(self.config.checkpoint_path)
-                best_accuracy = val_acc
-            else:
-                num_without_increase += 1
+    def eval(self) -> tuple:
+        """
+        Eval the model in a test data loader and export the results in result.csv file.
+        :return:
+        """
+        test_acc = self.eval_model()
 
-            if 0 < early_stopping < num_without_increase:
-                logging.info("Early Stopping in " + str(epoch))
-                break
+        logging.info("Acc: " + str(test_acc.item()))
+
+        y_texts, y_pred, y_pred_probs, y_test = self.get_predictions(self.test_data_loader)
+
+        df_results = pd.DataFrame()
+        df_results['y_texts'] = y_texts
+        df_results['y_pred_probs'] = [t.numpy() for t in y_pred_probs]
+        df_results['y_pred'] = y_pred
+
+        df_results.to_csv('/trainer/results/results.csv', index=False)
