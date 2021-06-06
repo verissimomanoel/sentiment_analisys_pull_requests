@@ -14,7 +14,7 @@ COPY ./model /trainer/model
 COPY ./tests /trainer/tests
 COPY ./main.py /trainer/main.py
 
-#RUN wget "https://huggingface.co/cardiffnlp/twitter-roberta-base-sentiment/resolve/main/pytorch_model.bin" -O /trainer/baselinepytorch_model.bin
+RUN wget "https://huggingface.co/cardiffnlp/twitter-roberta-base-sentiment/resolve/main/pytorch_model.bin" -O /trainer/baselinepytorch_model.bin
 
 WORKDIR ./trainer
 RUN ls
