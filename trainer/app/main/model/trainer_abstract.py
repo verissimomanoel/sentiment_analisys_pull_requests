@@ -205,4 +205,11 @@ class TrainerAbstract(metaclass=abc.ABCMeta):
         df_results['y_pred_probs'] = [t.numpy() for t in y_pred_probs]
         df_results['y_pred'] = y_pred
 
-        df_results.to_csv('/trainer/results/results.csv', index=False)
+        if os.path.exists("/trainer/results/"):
+            df_results.to_csv('/trainer/results/results.csv', index=False)
+        else:
+            directory = "../../results/"
+            if not os.path.exists(directory):
+                os.mkdir(directory)
+
+            df_results.to_csv(directory + 'results.csv', index=False)
