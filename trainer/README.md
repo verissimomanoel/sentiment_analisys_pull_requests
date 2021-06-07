@@ -46,13 +46,22 @@ Os parametros de volume do comando abaixo são exemplos locais e devem ser alter
 * /home/manoel/Documents/workspace_talentify/sentiment_analisys_pull_requests/volume/model
 * /home/manoel/Documents/workspace_talentify/sentiment_analisys_pull_requests/volume/results
 
-Run Docker container:
+Subindo o container Docker:
 ```bash
-$ docker run -d --runtime=nvidia -v /home/manoel/Documents/workspace_talentify/sentiment_analisys_pull_requests/volume/model:/trainer/model\
- -v /home/manoel/Documents/workspace_talentify/sentiment_analisys_pull_requests/volume/results:/trainer/results\
- -e BASELINE_PATH="./baseline" -e CHECKPOINT_PATH="./model" -e TRAIN_PATH_FILE="./data/train.csv"\
- -e VAL_PATH_FILE="./data/val.csv" -e TEST_PATH_FILE="./data/test.csv" -e NUMBER_OF_CLASSES=3\
- -e FEATURE_NAME="text" -e TARGET_NAME="airline_sentiment" -e EARLY_STOPPING=3 --name sapr_trainer_api\--rm sapr_trainer_api
+$ docker run -d --runtime=nvidia -v /home/manoel/Documents/workspace_talentify/sentiment_analisys_pull_requests/volume/model:/trainer/model \
+ -v /home/manoel/Documents/workspace_talentify/sentiment_analisys_pull_requests/volume/results:/trainer/results \
+ -e BASELINE_PATH="./baseline" -e CHECKPOINT_PATH="./model" -e TRAIN_PATH_FILE="./data/train.csv" \
+ -e VAL_PATH_FILE="./data/val.csv" -e TEST_PATH_FILE="./data/test.csv" -e NUMBER_OF_CLASSES=3 \
+ -e FEATURE_NAME="text" -e TARGET_NAME="airline_sentiment" -e EARLY_STOPPING=3 --name sapr_trainer_api --rm sapr_trainer_api
 ```
 
 No final do precesso é gerado o arquivo results.csv na pasta /trainer/results com o resultado aplicado no dataset de teste.
+
+### Subindo o container Docker do treinamento do modelo - Imagem DockerHub
+```bash
+$ docker run -d --runtime=nvidia -v /home/manoel/Documents/workspace_talentify/sentiment_analisys_pull_requests/model:/trainer/model \
+ -v /home/manoel/Documents/workspace_talentify/sentiment_analisys_pull_requests/results:/trainer/results \
+ -e BASELINE_PATH="./baseline" -e CHECKPOINT_PATH="./model" -e TRAIN_PATH_FILE="./data/train.csv" \
+ -e VAL_PATH_FILE="./data/val.csv" -e TEST_PATH_FILE="./data/test.csv" -e NUMBER_OF_CLASSES=3 \
+ -e FEATURE_NAME="text" -e TARGET_NAME="airline_sentiment" -e EARLY_STOPPING=3 verissimomanoel/sapr_trainer_api --name sapr_trainer_api --rm sapr_trainer_api
+```

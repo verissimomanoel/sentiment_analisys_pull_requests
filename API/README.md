@@ -36,3 +36,8 @@ $ bentoml containerize SentimentService:20210606175109_D4C0C7 -t sapr_service_ap
 ```bash
 $ docker run -p 5000:5000 sapr_service_api:20210606175109_D4C0C7
 ```
+
+### Subindo o container Docker do modelo - Imagem DockerHub
+```bash
+$ docker run -p 5000:5000 verissimomanoel/sapr_service_api
+```
