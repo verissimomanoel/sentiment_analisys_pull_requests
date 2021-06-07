@@ -14,7 +14,7 @@ $ pip install -r app/main/configuration/requirements.txt
 ```bash
 $ python main.py ../volume/model/
 ```
-O valor <i>../volume/model/</i> e o parâmetro do caminho onde o modelo treinado foi salvo.
+O valor <i>../volume/model/</i> é o parâmetro do caminho onde o modelo treinado foi salvo.
 No final dessa execução o programa vai imprimir o caminho de onde o BentoML salvou a API do modelo, exemplo: <i>/home/manoel/bentoml/repository/SentimentService/20210607094602_CB7D26</i>.
 
 Além disso imprime também o ID do serviço publicado, exemplo: <i>BentoService bundle 'SentimentService:20210607094602_CB7D26'</i>.
