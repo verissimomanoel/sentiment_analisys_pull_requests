@@ -65,3 +65,42 @@ $ docker run -d --runtime=nvidia -v /home/manoel/Documents/workspace_talentify/s
  -e VAL_PATH_FILE="./data/val.csv" -e TEST_PATH_FILE="./data/test.csv" -e NUMBER_OF_CLASSES=3 \
  -e FEATURE_NAME="text" -e TARGET_NAME="airline_sentiment" -e EARLY_STOPPING=3 verissimomanoel/sapr_trainer_api --name sapr_trainer_api --rm sapr_trainer_api
 ```
+
+### Execução do projeto sem Docker
+Para execuar o projeto de treinamento sem container Docker favor executar os comandos (sistemas operacionais baseados em Unix) abaixo na sequência:
+
+```bash
+$ git clone https://github.com/verissimomanoel/sentiment_analisys_pull_requests.git
+```
+
+```bash
+$ cd sentiment_analisys_pull_requests/trainer
+```
+
+```bash
+$ pip install -r app/main/configuration/docker/requirements.txt
+```
+
+```bash
+$ mkdir model
+```
+
+```bash
+$ wget "https://huggingface.co/cardiffnlp/twitter-roberta-base-sentiment/resolve/main/pytorch_model.bin" -O baseline/pytorch_model.bin
+```
+
+```bash
+$ python main.py \
+--baseline-path="./baseline" \
+--checkpoint-path="./model" \
+--train-path-file="./data/train.csv" \
+--val-path-file="./data/val.csv" \
+--test-path-file="./data/test.csv" \
+--number-of-classes=3 \
+--feature-name="text" \
+--target-name="airline_sentiment" \
+--early-stopping=3
+```
+
+
+
