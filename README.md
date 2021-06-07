@@ -67,6 +67,8 @@ Os resultados aqui apresentados são dos dados separados para testes após o fin
 * A acurácia do modelo foi de <b>82.42%</b>, o que já é um bom resultado para uma transferência de aprendizado e como baseline.
 * A classe que tem menor assertividade é a Neutral e para melhorar isso talvez balancear o dataset seja uma saída.
 
+------------------------------------------------------------------
+
 ## Exemplo de chamada e retorno da API
 
 ### Request
@@ -88,6 +90,13 @@ $ curl -X POST "http://localhost:5000/predict" -H "accept: */*" -H "Content-Type
     }
 ]
 ```
+------------------------------------------------------------------
+
+## Swagger
+Exemplo da documentação do serviço com Swagger gerado pelo BentoML.
+![](imgs/swagger.png)
+
+------------------------------------------------------------------
 
 ## Postman
 Na pasta <b>Postman</b> tem 2 arquivos que podem ser importados para a ferramenta Postman e testes da API:
