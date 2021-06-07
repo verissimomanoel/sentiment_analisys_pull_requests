@@ -66,3 +66,30 @@ Os resultados aqui apresentados são dos dados separados para testes após o fin
 
 * A acurácia do modelo foi de <b>82.42%</b>, o que já é um bom resultado para uma transferência de aprendizado e como baseline.
 * A classe que tem menor assertividade é a Neutral e para melhorar isso talvez balancear o dataset seja uma saída.
+
+## Exemplo de chamada e retorno da API
+
+### Request
+```bash
+$ curl -X POST "http://localhost:5000/predict" -H "accept: */*" -H "Content-Type: application/json" -d "[{\"message\":\"SCEDC catalogs SCSN and SCEC formats 201412311600\",\"meta\":{\"commit_id\":\"6cc89fdc099fcdd846c1243c20af811f8d118c5d\",\"comment_id\":\"2489368162\"}}]"
+```
+
+### Response
+```json
+[
+    {
+        "neutral_score": 0.84,
+        "negative_score": 0.13,
+        "positive_score": 0.03,
+        "meta": {
+            "commit_id": "6cc89fdc099fcdd846c1243c20af811f8d118c5d",
+            "comment_id": "2489368162"
+        }
+    }
+]
+```
+
+## Postman
+Na pasta <b>Postman</b> tem 2 arquivos que podem ser importados para a ferramenta Postman e testes da API:
+* TALENTIFY_LOCAL.postman_environment.json - Configuração do ambiente com a URL da API
+* SENTIMENT_PR_COLLECTION.postman_collection.json - Collection com um exemplo de chamada da API e 3 testes de integração.
