@@ -111,3 +111,6 @@ Exemplo da documentação do serviço com Swagger gerado pelo BentoML.
 Na pasta <b>Postman</b> tem 2 arquivos que podem ser importados para a ferramenta Postman e testes da API:
 * TALENTIFY_LOCAL.postman_environment.json - Configuração do ambiente com a URL da API
 * SENTIMENT_PR_COLLECTION.postman_collection.json - Collection com um exemplo de chamada da API e 3 testes de integração.
+
+## Deploy no Heroku
+Adicionalmente a API foi disponibilizada no Heroku e pode ser consumida na URL [https://bentoml-her0ku-mtyymza3njixnwo.herokuapp.com/predict](https://bentoml-her0ku-mtyymza3njixnwo.herokuapp.com/predict).
